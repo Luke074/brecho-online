@@ -1,0 +1,42 @@
+<svg viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Fundo circular com gradiente -->
+    <defs>
+        <radialGradient id="fundo" cx="50%" cy="50%" r="60%" fx="50%" fy="50%">
+            <stop offset="0%" stop-color="#fce4ec" />
+            <stop offset="100%" stop-color="#f5e1d0" />
+        </radialGradient>
+    </defs>
+    <circle cx="40" cy="30" r="25" fill="url(#fundo)" />
+
+    <!-- Cabide simplificado -->
+    <path d="M40 12 L40 17" stroke="#5d4037" stroke-width="1" />
+    <path d="M28 17 Q40 22 52 17" stroke="#5d4037" stroke-width="1" fill="none" />
+    <path
+        d="M40 12 A3 3 0 0 0 43 9 L44 9 A1 1 0 0 0 44 7 L36 7 A1 1 0 0 0 36 9 L37 9 A3 3 0 0 0 40 12"
+        fill="#8d6e63" />
+
+    <!-- Vestido simplificado -->
+    <path d="M31 17 Q32 20 31 25 L30 38 Q34 40 36 38 L35 25 Q34 20 35 17" fill="#ad1457" />
+
+    <!-- Camisa simplificada -->
+    <path d="M38 17 Q37 20 37 25 L37 38 Q40 40 43 38 L43 25 Q43 20 42 17" fill="#42a5f5" />
+    <path d="M40 25 L40 36" stroke="#e3f2fd" stroke-width="0.5" />
+    <circle cx="40" cy="27" r="0.5" fill="#e3f2fd" />
+    <circle cx="40" cy="30" r="0.5" fill="#e3f2fd" />
+    <circle cx="40" cy="33" r="0.5" fill="#e3f2fd" />
+
+    <!-- Calça simplificada -->
+    <path d="M45 17 Q44 20 44 25 L43 38 Q46 40 48 38 L49 27 Q50 20 49 17" fill="#3949ab" />
+
+    <!-- Lenço/Cachecol simplificado -->
+    <path d="M51 17 Q52 23 51 29 L52 35 L49 36 L48 30 Q48 23 49 17" fill="#ffb74d" />
+
+    <!-- Etiqueta de preço simplificada -->
+    <path d="M49 30 L52 27" stroke="#8d6e63" stroke-width="0.3" />
+    <rect x="51" y="25" width="3" height="3" rx="0.5" fill="#f5f5f5" stroke="#8d6e63"
+        stroke-width="0.2" />
+
+    <!-- Sombra sutil embaixo -->
+    <ellipse cx="40" cy="50" rx="20" ry="3" fill="#00000022" />
+</svg>
+  
