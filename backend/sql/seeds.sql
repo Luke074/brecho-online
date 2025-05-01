@@ -1,10 +1,10 @@
-TRUNCATE TABLE IF EXISTS produto_venda CASCADE;
-TRUNCATE TABLE IF EXISTS venda CASCADE;
-TRUNCATE TABLE IF EXISTS estoque CASCADE;
-TRUNCATE TABLE IF EXISTS produtos CASCADE;
-TRUNCATE TABLE IF EXISTS categorias CASCADE;
-TRUNCATE TABLE IF EXISTS doacoes CASCADE;
-TRUNCATE TABLE IF EXISTS pessoas CASCADE;
+DELETE FROM produto_venda;
+DELETE FROM venda;
+DELETE FROM estoque;
+DELETE FROM produtos;
+DELETE FROM categorias;
+DELETE FROM doacoes;
+DELETE FROM pessoas;
 
 -- Inserindo pessoas (um deles com CNPJ)
 INSERT INTO pessoas (nome, email, celular, endereco, documento) VALUES
