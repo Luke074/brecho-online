@@ -5,6 +5,7 @@ import uvicorn
 
 from interface.pessoa import PessoaCreate
 from interface.produto import ProdutoCreate  # Corrected import path
+import post_e_get
 
 app = FastAPI()
 
@@ -161,4 +162,4 @@ async def adicionar_produto(produto: ProdutoCreate):
     return {"id_produto": produto_id, "mensagem": "Produto cadastrado com sucesso"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
