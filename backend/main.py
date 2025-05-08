@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 import sqlite3
 import os
+import uvicorn
 
 from interface.pessoa import PessoaCreate
 from interface.produto import ProdutoCreate  # Corrected import path
@@ -159,3 +160,5 @@ async def adicionar_produto(produto: ProdutoCreate):
     connection.close()
     return {"id_produto": produto_id, "mensagem": "Produto cadastrado com sucesso"}
 
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
