@@ -12,16 +12,13 @@ app = FastAPI()
 os.makedirs('db', exist_ok=True)
 db_path = os.path.join("db", "brecho_db")
 
+
+app = FastAPI()
+
 def get_db_connection():
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
-
-from fastapi import FastAPI
-import sqlite3
-from typing import List
-
-app = FastAPI()
 
 def resposta_padrao(sucesso: bool, mensagem: str, data: Any = None):
     return {
@@ -78,6 +75,7 @@ def create_structure_database():
             id_produto INTEGER PRIMARY KEY AUTOINCREMENT,
             id_doacao INTEGER REFERENCES doacoes(id_doacao),
             id_categoria INTEGER REFERENCES categorias(id_categoria),
+            imagem VARCHAR(255),
             descricao VARCHAR(255),
             marca VARCHAR(100),
             tamanho VARCHAR(50),
@@ -120,7 +118,6 @@ def create_structure_database():
     
     
 
-    
 @app.post("/login")
 async def login(usuario: str, senha: str):
     # Aqui você pode implementar a lógica de autenticação
@@ -170,24 +167,36 @@ async def adicionar_pessoa(pessoa: PessoaCreate):
 @app.get("/produtos")
 async def listar_produtos():
     try:
-        connection = sqlite3.connect(db_path)
         connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute('''
-            SELECT p.id_produto, p.id_categoria, p.descricao, p.marca, p.tamanho, p.preco,
+            SELECT p.id_produto, p.id_categoria, p.imagem, p.descricao, p.marca, p.tamanho, p.preco,
                 d.nome AS nome_doacao, c.nome AS categoria
             FROM produtos AS p
-            INNER JOIN doacoes AS d ON p.id_doacao = d.id_doacao
+            LEFT JOIN doacoes AS d ON p.id_doacao = d.id_doacao
             INNER JOIN categorias AS c ON p.id_categoria = c.id_categoria
         ''')
         produtos = cursor.fetchall()
         connection.close()
 
-        produtos_dict = [dict(produto) for produto in produtos]
+        produtos_dict = [dict(p) for p in produtos]
         return resposta_padrao(True, "Produtos encontrados com sucesso.", produtos_dict)
     except sqlite3.Error as e:
         return resposta_padrao(False, "Erro ao listar produtos: " + str(e))
-    
+
+@app.get("/categorias")
+async def listar_categorias():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM categorias')
+        categorias = cursor.fetchall()
+        connection.close()
+
+        categorias_dict = [dict(cat) for cat in categorias]
+        return resposta_padrao(True, "Categorias encontradas com sucesso.", categorias_dict)
+    except sqlite3.Error as e:
+        return resposta_padrao(False, "Erro ao listar categorias: " + str(e))
 
 @app.post("/produtos")
 async def adicionar_produto(produto: ProdutoCreate):

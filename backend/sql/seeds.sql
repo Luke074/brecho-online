@@ -26,9 +26,9 @@ INSERT INTO categorias (nome, descricao) VALUES
 
 -- Inserindo produtos
 INSERT INTO produtos (id_doacao, id_categoria, descricao, marca, tamanho, preco) VALUES
-(1, 1, 'Camiseta estampada', 'Zara', 'M', 25.00),
-(2, 2, 'Tênis esportivo', 'Nike', '42', 120.00),
-(3, 3, 'Bolsa de couro', 'Guess', 'Único', 80.00);
+(1, 1, 'Camiseta estampada', 'Zara', 'M', 25.50),
+(2, 2, 'Tênis esportivo', 'Nike', '42', 120.30),
+(3, 3, 'Bolsa de couro', 'Guess', 'Único', 80.25);
 
 -- Inserindo estoque
 INSERT INTO estoque (id_produto, quantidade, secao, prateleira, data_ultima_atualizacao) VALUES
