@@ -1,16 +1,35 @@
-from fastapi import FastAPI
 import sqlite3
 import os
 import uvicorn
+from typing import Any, List
 
 from interface.pessoa import PessoaCreate
 from interface.produto import ProdutoCreate  # Corrected import path
-import post_e_get
+from fastapi import FastAPI
 
 app = FastAPI()
 
 os.makedirs('db', exist_ok=True)
 db_path = os.path.join("db", "brecho_db")
+
+def get_db_connection():
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+from fastapi import FastAPI
+import sqlite3
+from typing import List
+
+app = FastAPI()
+
+def resposta_padrao(sucesso: bool, mensagem: str, data: Any = None):
+    return {
+        "sucesso": sucesso,
+        "mensagem": mensagem,
+        "data": data
+    }
+
 
 @app.get("/")
 async def root():
@@ -105,9 +124,23 @@ def create_structure_database():
 @app.post("/login")
 async def login(usuario: str, senha: str):
     # Aqui você pode implementar a lógica de autenticação
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        SELECT * FROM pessoas WHERE email = ? AND senha = ?
+    ''', (usuario, senha))
+    usuario = cursor.fetchone()
+    connection.close()
     
+    if not usuario:
+        return resposta_padrao(False, "Usuário ou senha inválidos")
+
     # Por enquanto, vamos apenas retornar uma mensagem de sucesso
-    return {"message": "Login bem-sucedido!"}
+    return resposta_padrao(True, "Login realizado com sucesso", {
+        "id_pessoa": usuario["id_pessoa"],
+        "nome": usuario["nome"],
+        "email": usuario["email"]
+    })
     
 @app.post("/pessoas")
 async def adicionar_pessoa(pessoa: PessoaCreate):
@@ -127,19 +160,34 @@ async def adicionar_pessoa(pessoa: PessoaCreate):
     connection.commit()
     pessoa_id = cursor.lastrowid
     connection.close()
-    return {"id_pessoa": pessoa_id, "mensagem": "Pessoa cadastrada com sucesso"}
+
+    return resposta_padrao(True, "Pessoa cadastrada com sucesso", {
+        "id_pessoa": pessoa_id,
+        "nome": pessoa.nome,
+        "email": pessoa.email
+    })
 
 @app.get("/produtos")
 async def listar_produtos():
-    connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
+    try:
+        connection = sqlite3.connect(db_path)
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute('''
+            SELECT p.id_produto, p.id_categoria, p.descricao, p.marca, p.tamanho, p.preco,
+                d.nome AS nome_doacao, c.nome AS categoria
+            FROM produtos AS p
+            INNER JOIN doacoes AS d ON p.id_doacao = d.id_doacao
+            INNER JOIN categorias AS c ON p.id_categoria = c.id_categoria
+        ''')
+        produtos = cursor.fetchall()
+        connection.close()
 
-    cursor.execute("SELECT * FROM produtos")
-    colunas = [desc[0] for desc in cursor.description]
-    produtos = [dict(zip(colunas, linha)) for linha in cursor.fetchall()]
-
-    connection.close()
-    return {"produtos": produtos}
+        produtos_dict = [dict(produto) for produto in produtos]
+        return resposta_padrao(True, "Produtos encontrados com sucesso.", produtos_dict)
+    except sqlite3.Error as e:
+        return resposta_padrao(False, "Erro ao listar produtos: " + str(e))
+    
 
 @app.post("/produtos")
 async def adicionar_produto(produto: ProdutoCreate):
