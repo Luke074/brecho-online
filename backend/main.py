@@ -6,8 +6,11 @@ from typing import Any, List
 from interface.pessoa import PessoaCreate
 from interface.produto import ProdutoCreate  # Corrected import path
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles 
 
 app = FastAPI()
+
+app.mount("/images", StaticFiles(directory="images"), name="images")
 
 os.makedirs('db', exist_ok=True)
 db_path = os.path.join("db", "brecho_db")
@@ -199,24 +202,33 @@ async def listar_categorias():
         return resposta_padrao(False, "Erro ao listar categorias: " + str(e))
 
 @app.post("/produtos")
-async def adicionar_produto(produto: ProdutoCreate):
-    connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
-    cursor.execute('''
-        INSERT INTO produtos (id_doacao, id_categoria, descricao, marca, tamanho, preco)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (
-        produto.id_doacao,
-        produto.id_categoria,
-        produto.descricao,
-        produto.marca,
-        produto.tamanho,
-        produto.preco
-    ))
-    connection.commit()
-    produto_id = cursor.lastrowid
-    connection.close()
-    return {"id_produto": produto_id, "mensagem": "Produto cadastrado com sucesso"}
+async def adicionar_produto(
+    id_doacao: int = Form(...),
+    id_categoria: int = Form(...),
+    descricao: str = Form(...),
+    marca: str = Form(...),
+    tamanho: str = Form(...),
+    preco: float = Form(...),
+    imagem: UploadFile = File(...)
+):
+    try:
+        imagem_filename = imagem.filename
+        imagem_path = os.path.join("images", imagem_filename)
+        with open(imagem_path, "wb") as buffer:
+            shutil.copyfileobj(imagem.file, buffer)
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute('''
+            INSERT INTO produtos (id_doacao, id_categoria, imagem, descricao, marca, tamanho, preco)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (id_doacao, id_categoria, imagem_filename, descricao, marca, tamanho, preco))
+        connection.commit()
+        produto_id = cursor.lastrowid
+        connection.close()
+
+        return {"id_produto": produto_id, "mensagem": "Produto cadastrado com sucesso"}
+    except sqlite3.Error as e:
+        return resposta_padrao(False, "Erro ao adicionar produto: " + str(e))
+    except Exception as ex:
+        return resposta_padrao(False, "Erro inesperado: " + str(ex))
