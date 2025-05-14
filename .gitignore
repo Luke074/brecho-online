@@ -5,3 +5,4 @@ backend/.env
 backend/venv/
 backend/db/*
 venv/
+backend/images/*

@@ -1,3 +1,4 @@
+import shutil
 import sqlite3
 import os
 import uvicorn
@@ -5,11 +6,12 @@ from typing import Any, List
 
 from interface.pessoa import PessoaCreate
 from interface.produto import ProdutoCreate  # Corrected import path
-from fastapi import FastAPI
+from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.staticfiles import StaticFiles 
 
 app = FastAPI()
 
+os.makedirs('/images', exist_ok=True)
 app.mount("/images", StaticFiles(directory="images"), name="images")
 
 os.makedirs('db', exist_ok=True)
@@ -217,17 +219,23 @@ async def adicionar_produto(
         with open(imagem_path, "wb") as buffer:
             shutil.copyfileobj(imagem.file, buffer)
 
+        # Adjust the path to include "backend/images/..."
+        imagem_db_path = os.path.join("backend", imagem_path)
+
         connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute('''
             INSERT INTO produtos (id_doacao, id_categoria, imagem, descricao, marca, tamanho, preco)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (id_doacao, id_categoria, imagem_filename, descricao, marca, tamanho, preco))
+        ''', (id_doacao, id_categoria, imagem_db_path, descricao, marca, tamanho, preco))
         connection.commit()
         produto_id = cursor.lastrowid
         connection.close()
 
-        return {"id_produto": produto_id, "mensagem": "Produto cadastrado com sucesso"}
+        return resposta_padrao(True, "Produto cadastrado com sucesso", {
+            "id_produto": produto_id,
+            "imagem": imagem_filename
+        })
     except sqlite3.Error as e:
         return resposta_padrao(False, "Erro ao adicionar produto: " + str(e))
     except Exception as ex:
