@@ -7,9 +7,7 @@ from typing import Any, List
 from interface.pessoa import PessoaCreate
 from interface.produto import ProdutoCreate  # Corrected import path
 from fastapi import FastAPI, File, Form, UploadFile
-from fastapi.staticfiles import StaticFiles 
-
-app = FastAPI()
+from fastapi.staticfiles import StaticFiles
 
 os.makedirs('/images', exist_ok=True)
 app.mount("/images", StaticFiles(directory="images"), name="images")
@@ -149,7 +147,7 @@ async def adicionar_pessoa(pessoa: PessoaCreate):
     connection = get_db_connection()
     cursor = connection.cursor()
 
-    # Verifica se já tem email ou cpf no bd
+    # Verifica se já tem o email ou documento no banco
     cursor.execute('''
         SELECT * FROM pessoas WHERE email = ? OR documento = ?
     ''', (pessoa.email, pessoa.documento))
@@ -159,7 +157,7 @@ async def adicionar_pessoa(pessoa: PessoaCreate):
         connection.close()
         return resposta_padrao(False, "Já existe uma pessoa com este e-mail ou documento.")
 
-    # Insere normal se não existir
+    # Insere nova pessoa
     cursor.execute('''
         INSERT INTO pessoas (nome, email, celular, endereco, documento, senha)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -180,7 +178,7 @@ async def adicionar_pessoa(pessoa: PessoaCreate):
         "nome": pessoa.nome,
         "email": pessoa.email
     })
-
+    
 @app.get("/produtos")
 async def listar_produtos():
     try:
