@@ -9,14 +9,13 @@ from interface.produto import ProdutoCreate  # Corrected import path
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.staticfiles import StaticFiles
 
+app = FastAPI()
+
 os.makedirs('/images', exist_ok=True)
 app.mount("/images", StaticFiles(directory="images"), name="images")
 
 os.makedirs('db', exist_ok=True)
 db_path = os.path.join("db", "brecho_db")
-
-
-app = FastAPI()
 
 def get_db_connection():
     conn = sqlite3.connect(db_path)
