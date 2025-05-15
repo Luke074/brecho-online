@@ -146,8 +146,20 @@ async def login(usuario: str, senha: str):
     
 @app.post("/pessoas")
 async def adicionar_pessoa(pessoa: PessoaCreate):
-    connection = sqlite3.connect(db_path)
+    connection = get_db_connection()
     cursor = connection.cursor()
+
+    # Verifica se já tem email ou cpf no bd
+    cursor.execute('''
+        SELECT * FROM pessoas WHERE email = ? OR documento = ?
+    ''', (pessoa.email, pessoa.documento))
+    existente = cursor.fetchone()
+
+    if existente:
+        connection.close()
+        return resposta_padrao(False, "Já existe uma pessoa com este e-mail ou documento.")
+
+    # Insere normal se não existir
     cursor.execute('''
         INSERT INTO pessoas (nome, email, celular, endereco, documento, senha)
         VALUES (?, ?, ?, ?, ?, ?)
