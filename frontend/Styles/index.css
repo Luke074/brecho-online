@@ -18,6 +18,10 @@
     color: var(--black-color);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body{
     background-color: var(--white-color);
     text-align: center;
